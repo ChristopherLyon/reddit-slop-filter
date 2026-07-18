@@ -24,7 +24,7 @@ input[type="range"] { width: 100%; accent-color: #ff4d18; }
 .stats div:last-child { border: 0; }
 .stats strong { font: 18px/1 ui-monospace, monospace; }
 .stats span { color: #777; font-size: 10px; }
-button, select, textarea { font: inherit; }
+button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 .primary { width: 100%; padding: 10px 14px; color: white; background: #e64212; border: 0; border-radius: 6px; font-weight: 650; }
 .secondary { padding: 8px 11px; color: #ddd; background: transparent; border: 1px solid #3a3a3a; border-radius: 6px; }
@@ -34,7 +34,7 @@ button { cursor: pointer; }
 .options main { display: grid; gap: 16px; padding-bottom: 60px; }
 .options section { padding: 22px; background: #121212; border: 1px solid #272727; border-radius: 10px; }
 .options section .field + .field, .check { margin-top: 20px; }
-select, textarea { width: 100%; padding: 9px 10px; color: #eee; background: #0c0c0c; border: 1px solid #383838; border-radius: 6px; }
+input[type="search"], select, textarea { width: 100%; padding: 9px 10px; color: #eee; background: #0c0c0c; border: 1px solid #383838; border-radius: 6px; }
 .category { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(140px, 1fr) 48px; align-items: center; gap: 18px; padding: 12px 0; border-top: 1px solid #242424; }
 .category:first-child { border: 0; }
 .category span { display: grid; gap: 4px; }
@@ -50,4 +50,33 @@ select, textarea { width: 100%; padding: 9px 10px; color: #eee; background: #0c0
 .corpus-actions .secondary { font-size: 11px; }
 .current-post small { color: #82c782; line-height: 1.35; }
 .model-status { margin: -8px 0 0; color: #777; font: 10px/1.4 ui-monospace, monospace; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 16px; }
+.section-heading h2 { margin: 5px 0 0; }
+.model-chip { padding: 5px 8px; color: #aaa; background: #1d1d1d; border: 1px solid #333; border-radius: 999px; font: 10px/1 ui-monospace, monospace; }
+.model-chip.ready { color: #99d89b; border-color: #315f35; }
+.model-chip.error { color: #f5ae79; border-color: #754224; }
+.corpus-summary { display: grid; grid-template-columns: repeat(4, 1fr); margin-bottom: 16px; border: 1px solid #292929; border-radius: 8px; }
+.corpus-summary div { display: grid; gap: 4px; padding: 12px; border-right: 1px solid #292929; }
+.corpus-summary div:last-child { border: 0; }
+.corpus-summary strong { font: 17px/1 ui-monospace, monospace; }
+.corpus-summary span { color: #777; font-size: 10px; }
+.corpus-toolbar { display: grid; grid-template-columns: 1fr 150px; gap: 8px; margin: 16px 0 10px; }
+.corpus-list { display: grid; gap: 8px; max-height: 520px; margin-bottom: 12px; overflow: auto; }
+.corpus-entry { display: grid; gap: 7px; padding: 12px; background: #0d0d0d; border: 1px solid #282828; border-radius: 7px; }
+.corpus-entry-head { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 9px; }
+.corpus-entry-head strong { font-size: 12px; line-height: 1.4; }
+.corpus-entry > small { color: #777; font-size: 10px; }
+.corpus-badge { padding: 4px 6px; border-radius: 4px; font: 700 9px/1 ui-monospace, monospace; text-transform: uppercase; }
+.corpus-badge.slop { color: #ff9b7c; background: #40180c; }
+.corpus-badge.keep { color: #9bd69e; background: #173519; }
+.entry-remove { padding: 0; color: #888; background: transparent; border: 0; font-size: 10px; }
+.entry-remove:hover { color: #ff9b7c; }
+.corpus-entry details { color: #999; font-size: 10px; }
+.corpus-entry summary { cursor: pointer; }
+.corpus-entry pre { max-height: 130px; overflow: auto; white-space: pre-wrap; color: #aaa; font: 10px/1.5 ui-monospace, monospace; }
+.empty-state { padding: 18px; text-align: center; border: 1px dashed #333; border-radius: 7px; }
+.empty-state[hidden] { display: none; }
+.developer-note { margin: 12px 0 0; font-size: 11px; }
+.developer-note code { color: #bbb; }
+.danger { color: #ff9b7c; }
 @media (max-width: 600px) { .category { grid-template-columns: 1fr 50px; }.category input { grid-column: 1 / -1; grid-row: 2; }.category output { grid-column: 2; grid-row: 1; } }

@@ -53,3 +53,17 @@ test("settings merge nested category defaults", () => {
   assert.equal(settings.categoryWeights.cloneware, 0);
   assert.equal(settings.categoryWeights.thinWrapper, 1);
 });
+
+test("settings preserve an explicitly blank starting corpus", () => {
+  assert.equal(classifier.mergeSettings({ seedCorpusEnabled: false }).seedCorpusEnabled, false);
+});
+
+test("creates a portable labelled corpus entry", () => {
+  const post = { title: "A tiny launch", subreddit: "SideProject", preview: "A visible preview" };
+  const entry = classifier.corpusEntry(post, "slop", "2026-07-18T12:00:00.000Z");
+  assert.equal(entry.id, classifier.stableKey(post));
+  assert.equal(entry.label, "slop");
+  assert.match(entry.text, /A tiny launch/);
+  assert.equal(entry.addedAt, "2026-07-18T12:00:00.000Z");
+  assert.throws(() => classifier.corpusEntry(post, "maybe"), /slop or keep/);
+});

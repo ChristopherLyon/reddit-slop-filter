@@ -58,7 +58,8 @@
   }
 
   function combinedCorpus() {
-    return [...seedCorpus, ...trainingCorpus].map(item => ({
+    const baseline = settings.seedCorpusEnabled ? seedCorpus : [];
+    return [...baseline, ...trainingCorpus].map(item => ({
       id: item.id,
       label: item.label,
       text: item.text || classifier.normalizedText(item)
@@ -79,9 +80,32 @@
   }
 
   function reveal(root, placeholder) {
-    root.classList.remove("rsf-hidden", "rsf-dimmed");
+    root.classList.remove("rsf-hidden", "rsf-dimmed", "rsf-peeking");
+    delete root.dataset.rsfPeeking;
     root.removeAttribute("aria-hidden");
     placeholder?.remove();
+  }
+
+  function setPeek(root, bar, button, open) {
+    root.classList.remove("rsf-hidden", "rsf-dimmed");
+    root.removeAttribute("aria-hidden");
+    bar.classList.toggle("rsf-placeholder-open", open);
+    button.setAttribute("aria-expanded", String(open));
+    if (open) {
+      root.dataset.rsfPeeking = "1";
+      root.classList.add("rsf-peeking");
+      button.textContent = "Close";
+      root.scrollIntoView?.({ block: "nearest" });
+      return;
+    }
+    delete root.dataset.rsfPeeking;
+    root.classList.remove("rsf-peeking");
+    button.textContent = "Peek";
+    if (settings.mode === "dim") root.classList.add("rsf-dimmed");
+    else {
+      root.classList.add("rsf-hidden");
+      root.setAttribute("aria-hidden", "true");
+    }
   }
 
   function buildPlaceholder(root, post, result, key) {
@@ -95,8 +119,10 @@
     controls.className = "rsf-controls";
     const show = document.createElement("button");
     show.type = "button";
-    show.textContent = "Show";
-    show.addEventListener("click", () => reveal(root, bar));
+    show.className = "rsf-peek";
+    show.textContent = "Peek";
+    show.setAttribute("aria-expanded", "false");
+    show.addEventListener("click", () => setPeek(root, bar, show, root.dataset.rsfPeeking !== "1"));
     const correction = document.createElement("button");
     correction.type = "button";
     correction.textContent = "Not slop";
@@ -128,6 +154,58 @@
   function personalLabelFor(post) {
     const key = classifier.stableKey(post);
     return trainingCorpus.find(item => classifier.stableKey(item) === key)?.label || "";
+  }
+
+  async function addPersonalExample(post, label) {
+    const entry = classifier.corpusEntry(post, label);
+    trainingCorpus = trainingCorpus.filter(item => item.id !== entry.id);
+    trainingCorpus.push(entry);
+    if (trainingCorpus.length > 500) trainingCorpus = trainingCorpus.slice(-500);
+    stats.trained = trainingCorpus.length;
+    await extensionApi.storage.local.set({ trainingCorpus, stats });
+    return entry;
+  }
+
+  function actionLabel(node) {
+    return [node.getAttribute?.("aria-label"), node.getAttribute?.("title"), node.textContent]
+      .filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+  }
+
+  function ensureReportButton(root, post) {
+    const existing = root.querySelector?.("[data-rsf-report-button='1']");
+    if (existing) {
+      existing.disabled = false;
+      existing.textContent = personalLabelFor(post) === "slop" ? "Added" : "Slop";
+      return;
+    }
+    const candidates = [...root.querySelectorAll("shreddit-post-share-button, button, a, faceplate-tracker")];
+    const share = candidates.find(node => node.localName === "shreddit-post-share-button" || /(^|\s)share(\s|$)/i.test(actionLabel(node)));
+    if (!share) return;
+    const slottedShare = share.closest?.("[slot='action-row']");
+    const anchor = slottedShare || share.closest?.("shreddit-post-share-button, button, a") || share;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "rsf-report-button";
+    button.dataset.rsfReportButton = "1";
+    button.textContent = personalLabelFor(post) === "slop" ? "Added" : "Slop";
+    button.title = "Add this post to your local slop corpus";
+    button.setAttribute("aria-label", "Add this post to your local slop corpus");
+    if (anchor.getAttribute?.("slot")) button.setAttribute("slot", anchor.getAttribute("slot"));
+    button.addEventListener("click", async event => {
+      event.preventDefault();
+      event.stopPropagation();
+      button.disabled = true;
+      button.textContent = "Adding…";
+      try {
+        await addPersonalExample(post, "slop");
+        button.textContent = "Added";
+        button.title = "Saved in your local slop corpus";
+      } catch {
+        button.disabled = false;
+        button.textContent = "Retry";
+      }
+    });
+    anchor.after(button);
   }
 
   function applySemanticResults(batch, message) {
@@ -183,11 +261,19 @@
   }
 
   function processPost(root) {
-    if (root.dataset.rsfScanned === "1") return;
     if (root.parentElement?.closest(POST_SELECTOR)) return;
+    if (root.dataset.rsfScanned === "1") {
+      const knownPost = extractPost(root);
+      if (knownPost) ensureReportButton(root, knownPost);
+      return;
+    }
     root.dataset.rsfScanned = "1";
     const post = extractPost(root);
-    if (!post) return;
+    if (!post) {
+      delete root.dataset.rsfScanned;
+      return;
+    }
+    ensureReportButton(root, post);
     stats.scanned += 1;
     if (!settings.enabled || subredditAllowed(post.subreddit)) return;
     const key = classifier.stableKey(post);
@@ -219,7 +305,8 @@
     document.querySelectorAll("[data-rsf-scanned='1']").forEach(node => {
       node.dataset.rsfScanned = "0";
       node.dataset.rsfFiltered = "0";
-      node.classList.remove("rsf-hidden", "rsf-dimmed");
+      node.classList.remove("rsf-hidden", "rsf-dimmed", "rsf-peeking");
+      delete node.dataset.rsfPeeking;
       node.removeAttribute("aria-hidden");
     });
     document.querySelectorAll(".rsf-placeholder").forEach(node => node.remove());

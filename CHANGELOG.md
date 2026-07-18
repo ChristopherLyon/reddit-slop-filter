@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 — 2026-07-18
+
+- Added an inline **Slop** action beside Reddit's Share control.
+- Added reversible **Peek / Close** disclosure to filtered-post banners.
+- Added a searchable developer corpus inspector, per-entry removal, model state, and JSON export.
+- Added shipped-baseline and blank-corpus starting modes.
+- Added a repository command for promoting a reviewed browser export into the baseline corpus.
+
 ## 0.2.1 — 2026-07-18
 
 - Moved neural inference into the Manifest V3 background service worker for Safari compatibility.

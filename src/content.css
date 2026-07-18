@@ -1,6 +1,7 @@
 .rsf-hidden { display: none !important; }
 .rsf-dimmed { opacity: .18 !important; filter: grayscale(1); transition: opacity 120ms ease; }
 .rsf-dimmed:hover, .rsf-dimmed:focus-within { opacity: .8 !important; }
+.rsf-peeking { display: revert !important; opacity: 1 !important; filter: none !important; }
 .rsf-placeholder { box-sizing: border-box; display: flex; align-items: center; gap: 10px; min-height: 48px; margin: 6px 0; padding: 9px 12px; color: #d8d8d8; background: #151515; border: 1px solid #333; border-left: 3px solid #ff4500; border-radius: 7px; font: 13px/1.3 system-ui, sans-serif; }
 .rsf-placeholder > span:nth-child(2) { display: grid; gap: 1px; }
 .rsf-placeholder strong { color: #f4f4f4; font-size: 12px; }
@@ -9,3 +10,10 @@
 .rsf-controls { display: flex; gap: 6px; margin-left: auto; }
 .rsf-controls button { appearance: none; padding: 5px 8px; color: #ddd; background: transparent; border: 1px solid #4a4a4a; border-radius: 5px; cursor: pointer; font: inherit; }
 .rsf-controls button:hover { color: white; border-color: #888; }
+.rsf-peek::before { content: "▾"; display: inline-block; margin-right: 5px; }
+.rsf-peek[aria-expanded="true"]::before { content: "▴"; }
+.rsf-placeholder-open { border-left-color: #8a8a86; }
+.rsf-report-button { appearance: none; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; margin-left: 8px; padding: 0 14px; color: inherit; background: rgba(255,255,255,.08); border: 0; border-radius: 999px; cursor: pointer; font: 600 14px/1 system-ui, sans-serif; white-space: nowrap; }
+.rsf-report-button::before { content: "×"; margin-right: 6px; color: #ff4500; font: 700 17px/1 ui-monospace, monospace; }
+.rsf-report-button:hover { background: rgba(255,255,255,.14); }
+.rsf-report-button:disabled { cursor: default; opacity: .72; }

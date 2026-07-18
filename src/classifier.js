@@ -36,6 +36,7 @@
     mode: "collapse",
     showScore: true,
     modelEnabled: true,
+    seedCorpusEnabled: true,
     categoryWeights: {
       cloneware: 1,
       thinWrapper: 1,
@@ -132,5 +133,16 @@
     return `post-${(hash >>> 0).toString(36)}`;
   }
 
-  return { CATEGORY_LABELS, DEFAULT_SETTINGS, FEATURE_RULES, mergeSettings, normalizedText, score, stableKey };
+  function corpusEntry(post, label, addedAt = new Date().toISOString()) {
+    if (label !== "slop" && label !== "keep") throw new TypeError("Corpus label must be slop or keep");
+    return {
+      ...post,
+      id: stableKey(post),
+      label,
+      text: normalizedText(post),
+      addedAt
+    };
+  }
+
+  return { CATEGORY_LABELS, DEFAULT_SETTINGS, FEATURE_RULES, corpusEntry, mergeSettings, normalizedText, score, stableKey };
 });

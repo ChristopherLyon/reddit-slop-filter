@@ -41,15 +41,8 @@ async function loadCurrentPost() {
 
 async function addToCorpus(label) {
   if (!currentPost) return;
-  const key = classifier.stableKey(currentPost);
-  const entry = {
-    ...currentPost,
-    id: key,
-    label,
-    text: classifier.normalizedText(currentPost),
-    addedAt: new Date().toISOString()
-  };
-  trainingCorpus = trainingCorpus.filter(item => item.id !== key);
+  const entry = classifier.corpusEntry(currentPost, label);
+  trainingCorpus = trainingCorpus.filter(item => item.id !== entry.id);
   trainingCorpus.push(entry);
   if (trainingCorpus.length > 500) trainingCorpus = trainingCorpus.slice(-500);
   stats.trained = trainingCorpus.length;
