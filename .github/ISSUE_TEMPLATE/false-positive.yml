@@ -1,0 +1,22 @@
+name: False positive
+description: Report a worthwhile post that the filter collapsed.
+title: "[false positive] "
+labels: [classifier, false-positive]
+body:
+  - type: textarea
+    attributes:
+      label: Visible post text
+      description: Include only the title, visible preview, subreddit, flair, and domain needed to reproduce the score. Remove usernames or personal data.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Filter threshold
+      placeholder: 62%
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Why it should pass
+    validations:
+      required: true

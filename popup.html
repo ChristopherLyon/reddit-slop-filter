@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reddit Slop Filter</title><link rel="stylesheet" href="ui.css"></head>
+<body class="popup">
+  <header><span class="eyebrow">LOCAL FILTER</span><h1>Reddit, minus the sludge.</h1></header>
+  <main>
+    <label class="switch-row"><span>Filter this feed</span><input id="enabled" type="checkbox"><i></i></label>
+    <label class="field"><span>Sensitivity <output id="thresholdValue"></output></span><input id="threshold" type="range" min="35" max="90" step="1"></label>
+    <section class="stats"><div><strong id="scanned">0</strong><span>scanned</span></div><div><strong id="collapsed">0</strong><span>filtered</span></div><div><strong id="corrected">0</strong><span>corrected</span></div></section>
+    <button id="options" class="primary" type="button">Tune the filter</button>
+  </main>
+  <footer>Nothing leaves your browser.</footer>
+  <script src="src/classifier.js"></script><script src="popup.js"></script>
+</body>
+</html>

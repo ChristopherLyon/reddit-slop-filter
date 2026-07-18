@@ -1,0 +1,27 @@
+name: Reddit feed breakage
+description: Report posts that are not detected or a feed layout that breaks.
+title: "[reddit DOM] "
+labels: [bug, reddit-dom]
+body:
+  - type: dropdown
+    attributes:
+      label: Browser
+      options: [Safari, Chrome, Brave, Arc, Edge, Other]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Browser version
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Reddit surface
+      options: [Current Reddit, old.reddit.com, Other]
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What happened
+    validations:
+      required: true
