@@ -12,10 +12,8 @@
   let stats = { scanned: 0, collapsed: 0, corrected: 0, trained: 0 };
   let scanQueued = false;
   let semanticQueued = false;
-  let worker;
   let requestSequence = 0;
   const semanticQueue = [];
-  const semanticRequests = new Map();
 
   function textFrom(root, selectors) {
     for (const selector of selectors) {
@@ -132,53 +130,45 @@
     return trainingCorpus.find(item => classifier.stableKey(item) === key)?.label || "";
   }
 
-  function ensureWorker() {
-    if (worker) return worker;
-    worker = new Worker(extensionApi.runtime.getURL("build/ml-worker.js"), { type: "module" });
-    worker.onmessage = event => {
-      const message = event.data || {};
-      if (message.type === "status") {
-        extensionApi.storage.local.set({ mlStatus: { status: message.status, progress: Math.round(message.progress || 0) } });
-        return;
+  function applySemanticResults(batch, message) {
+    if (!message || message.type === "error") {
+      extensionApi.storage.local.set({ mlStatus: { status: "error", error: message?.error || "background inference unavailable" } });
+      return;
+    }
+    message.results.forEach((semantic, index) => {
+      const item = batch[index];
+      if (!item?.root?.isConnected || item.root.dataset.rsfFiltered === "1") return;
+      const overall = Math.max(item.lexical.overall, semantic.score);
+      item.root.dataset.rsfSemanticScore = String(semantic.score);
+      if (overall >= settings.threshold) {
+        hidePost(item.root, item.post, {
+          overall,
+          explanation: semantic.score > item.lexical.overall ? ["similar to a slop example you labelled"] : item.lexical.explanation
+        }, item.key);
       }
-      const pending = semanticRequests.get(message.requestId);
-      if (!pending) return;
-      semanticRequests.delete(message.requestId);
-      if (message.type === "error") {
-        extensionApi.storage.local.set({ mlStatus: { status: "error", error: message.error } });
-        return;
-      }
-      message.results.forEach((semantic, index) => {
-        const item = pending[index];
-        if (!item?.root?.isConnected || item.root.dataset.rsfFiltered === "1") return;
-        const overall = Math.max(item.lexical.overall, semantic.score);
-        item.root.dataset.rsfSemanticScore = String(semantic.score);
-        if (overall >= settings.threshold) {
-          hidePost(item.root, item.post, {
-            overall,
-            explanation: semantic.score > item.lexical.overall ? ["similar to a slop example you labelled"] : item.lexical.explanation
-          }, item.key);
-        }
-      });
-    };
-    worker.onerror = event => extensionApi.storage.local.set({ mlStatus: { status: "error", error: event.message } });
-    return worker;
+    });
   }
 
-  function flushSemanticQueue() {
+  async function flushSemanticQueue() {
     semanticQueued = false;
     if (!semanticQueue.length || !settings.modelEnabled) return;
     const batch = semanticQueue.splice(0, 24);
     const corpus = combinedCorpus();
     const requestId = `semantic-${Date.now()}-${requestSequence += 1}`;
-    semanticRequests.set(requestId, batch);
-    ensureWorker().postMessage({
-      requestId,
-      texts: batch.map(item => classifier.normalizedText(item.post)),
-      corpus,
-      corpusSignature: corpusSignature(corpus)
-    });
-    if (semanticQueue.length) queueSemanticFlush();
+    try {
+      const message = await extensionApi.runtime.sendMessage({
+        type: "ML_SCORE",
+        requestId,
+        texts: batch.map(item => classifier.normalizedText(item.post)),
+        corpus,
+        corpusSignature: corpusSignature(corpus)
+      });
+      applySemanticResults(batch, message);
+    } catch (error) {
+      extensionApi.storage.local.set({ mlStatus: { status: "error", error: error?.message || String(error) } });
+    } finally {
+      if (semanticQueue.length) queueSemanticFlush();
+    }
   }
 
   function queueSemanticFlush() {

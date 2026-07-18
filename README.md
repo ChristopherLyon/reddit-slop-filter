@@ -37,7 +37,7 @@ Safari removes temporary extensions after 24 hours or when Safari quits. That ma
 - Tunable category pressure, sensitivity, subreddit allowlist, and confidence display.
 - **Add to training corpus** and **Worthwhile** controls when viewing a Reddit post.
 - Local **Not slop** corrections and simple filtering statistics.
-- A bundled quantized MiniLM neural model running in a Web Worker with WASM.
+- A bundled quantized MiniLM neural model running in a Manifest V3 background service worker with WASM.
 - An inspectable lexical fallback that works even if neural inference fails.
 
 The neural model turns visible post text into a 384-dimensional sentence embedding. It compares that embedding with seeded examples and your personal positive/negative corpus. Labelling a post therefore affects semantically similar posts rather than adding only an exact-title rule.
@@ -69,7 +69,7 @@ The GitHub **Safari project** workflow performs the same conversion on a macOS r
 
 The lexical classifier looks for weighted signals such as cloneware categories, generic AI-wrapper language, formulaic launch framing, adoption complaints, and validation requests. Substantive technical signals reduce the score. Matching multiple related categories adds a combination bonus.
 
-Posts that the lexical classifier does not filter are batched through quantized `all-MiniLM-L6-v2`. The closest positive corpus example raises the score; a similarly close **Worthwhile** example protects against false positives. The model revision and runtime are pinned and bundled locally.
+Posts that the lexical classifier does not filter are batched through quantized `all-MiniLM-L6-v2` in the extension's background service worker. The closest positive corpus example raises the score; a similarly close **Worthwhile** example protects against false positives. The model revision and runtime are pinned and bundled locally.
 
 The rules and weights live in [`src/classifier.js`](src/classifier.js), seeded examples in [`src/corpus.js`](src/corpus.js), and neural scoring in [`src/ml-worker.js`](src/ml-worker.js). They are versioned, testable, and intentionally easy to dispute or change.
 

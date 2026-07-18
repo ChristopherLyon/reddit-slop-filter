@@ -8,11 +8,11 @@ const files = [
   "options.html",
   ...Object.values(manifest.icons || {}),
   ...Object.values(manifest.action?.default_icon || {}),
-  ...manifest.web_accessible_resources.flatMap(item => item.resources.filter(resource => !resource.includes("*"))),
+  manifest.background.service_worker,
   ...manifest.content_scripts.flatMap(item => [...item.js, ...item.css])
 ];
 await Promise.all(files.map(file => access(file)));
-await access("build/ml-worker.js");
+await access("build/ml-background.js");
 await access("build/ort-wasm-simd-threaded.jsep.mjs");
 await access("build/ort-wasm-simd-threaded.jsep.wasm");
 await access("build/models/Xenova/all-MiniLM-L6-v2/onnx/model_quantized.onnx");

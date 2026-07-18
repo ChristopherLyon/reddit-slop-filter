@@ -1,5 +1,6 @@
 import { env, pipeline } from "@huggingface/transformers";
 
+const extensionApi = globalThis.browser || globalThis.chrome;
 const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
 const MODEL_REVISION = "751bff37182d3f1213fa05d7196b954e230abad9";
 const DIMENSIONS = 384;
@@ -9,28 +10,36 @@ let corpusVectors = [];
 
 env.allowLocalModels = true;
 env.allowRemoteModels = false;
-env.localModelPath = new URL("./models/", self.location.href).href;
+env.localModelPath = extensionApi.runtime.getURL("build/models/");
 env.useBrowserCache = false;
-env.backends.onnx.wasm.wasmPaths = new URL("./", self.location.href).href;
+env.backends.onnx.wasm.wasmPaths = extensionApi.runtime.getURL("build/");
 env.backends.onnx.wasm.numThreads = 1;
+
+function setStatus(status, details = {}) {
+  extensionApi.storage.local.set({ mlStatus: { status, ...details } });
+}
 
 function progress(info) {
   if (["initiate", "progress", "ready"].includes(info.status)) {
-    self.postMessage({ type: "status", status: info.status, file: info.file || "", progress: info.progress || 0 });
+    setStatus(info.status, { file: info.file || "", progress: Math.round(info.progress || 0) });
   }
 }
 
 function getExtractor() {
   if (!extractorPromise) {
-    self.postMessage({ type: "status", status: "loading", progress: 0 });
+    setStatus("loading", { progress: 0 });
     extractorPromise = pipeline("feature-extraction", MODEL_ID, {
       revision: MODEL_REVISION,
       dtype: "q8",
       device: "wasm",
       progress_callback: progress
     }).then(extractor => {
-      self.postMessage({ type: "status", status: "ready", progress: 100 });
+      setStatus("ready", { progress: 100 });
       return extractor;
+    }).catch(error => {
+      extractorPromise = undefined;
+      setStatus("error", { error: error?.message || String(error) });
+      throw error;
     });
   }
   return extractorPromise;
@@ -77,14 +86,16 @@ function semanticScore(vector) {
   };
 }
 
-self.onmessage = async event => {
-  const { requestId, texts, corpus, corpusSignature: signature } = event.data || {};
-  if (!requestId || !Array.isArray(texts)) return;
-  try {
-    await configureCorpus(corpus, signature);
-    const vectors = await embed(texts);
-    self.postMessage({ type: "result", requestId, results: vectors.map(semanticScore) });
-  } catch (error) {
-    self.postMessage({ type: "error", requestId, error: error?.message || String(error) });
-  }
-};
+async function scoreRequest(message) {
+  await configureCorpus(message.corpus, message.corpusSignature);
+  const vectors = await embed(message.texts);
+  return { type: "result", requestId: message.requestId, results: vectors.map(semanticScore) };
+}
+
+extensionApi.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type !== "ML_SCORE") return false;
+  scoreRequest(message)
+    .then(sendResponse)
+    .catch(error => sendResponse({ type: "error", requestId: message.requestId, error: error?.message || String(error) }));
+  return true;
+});

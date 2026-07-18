@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 — 2026-07-18
+
+- Moved neural inference into the Manifest V3 background service worker for Safari compatibility.
+- Preserved the bundled local model, corpus controls, and lexical fallback from v0.2.0.
+
 ## 0.2.0 — 2026-07-18
 
 - Added a fully local, quantized MiniLM sentence-embedding model with pinned weights.

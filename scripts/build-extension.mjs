@@ -1,5 +1,5 @@
 import { build } from "esbuild";
-import { mkdir, copyFile, access, writeFile } from "node:fs/promises";
+import { mkdir, copyFile, access, writeFile, rm } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname } from "node:path";
 
@@ -30,15 +30,16 @@ async function downloadModelFile(relativePath, expectedSize, expectedSha256) {
   await copyFile(cachePath, target);
 }
 
+await rm("build", { recursive: true, force: true });
 await mkdir("build", { recursive: true });
 await build({
-  entryPoints: ["src/ml-worker.js"],
+  entryPoints: ["src/ml-background.js"],
   bundle: true,
   minify: true,
   format: "esm",
   platform: "browser",
   target: ["safari17", "chrome120"],
-  outfile: "build/ml-worker.js",
+  outfile: "build/ml-background.js",
   define: { "process.env.NODE_ENV": '"production"' }
 });
 await copyFile(
@@ -50,4 +51,4 @@ await copyFile(
   "build/ort-wasm-simd-threaded.jsep.mjs"
 );
 await Promise.all(MODEL_FILES.map(file => downloadModelFile(...file)));
-console.log("Built semantic worker with pinned local MiniLM model and WASM runtime.");
+console.log("Built semantic background service with pinned local MiniLM model and WASM runtime.");

@@ -1,12 +1,12 @@
 {
   "name": "reddit-slop-filter",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "A local, inspectable relevance firewall for Reddit feeds.",
   "scripts": {
     "build": "node scripts/build-extension.mjs",
     "check": "node scripts/check-extension.mjs",
-    "test": "node --test",
+    "test": "node --test tests",
     "package": "npm run build && node scripts/package-extension.mjs"
   },
   "engines": {
