@@ -5,11 +5,18 @@
   <header><span class="eyebrow">LOCAL FILTER</span><h1>Reddit, minus the sludge.</h1></header>
   <main>
     <label class="switch-row"><span>Filter this feed</span><input id="enabled" type="checkbox"><i></i></label>
-    <label class="field"><span>Sensitivity <output id="thresholdValue"></output></span><input id="threshold" type="range" min="35" max="90" step="1"></label>
+    <label class="field"><span>Sensitivity <output id="sensitivityValue"></output></span><input id="sensitivity" type="range" min="20" max="100" step="1"></label>
+    <section id="currentPost" class="current-post" hidden>
+      <span class="eyebrow">CURRENT POST</span>
+      <strong id="currentTitle"></strong>
+      <div class="corpus-actions"><button id="addSlop" class="primary" type="button">Add to training corpus</button><button id="addKeep" class="secondary" type="button">Worthwhile</button></div>
+      <small id="corpusStatus"></small>
+    </section>
     <section class="stats"><div><strong id="scanned">0</strong><span>scanned</span></div><div><strong id="collapsed">0</strong><span>filtered</span></div><div><strong id="corrected">0</strong><span>corrected</span></div></section>
+    <p id="modelStatus" class="model-status">Semantic model idle</p>
     <button id="options" class="primary" type="button">Tune the filter</button>
   </main>
-  <footer>Nothing leaves your browser.</footer>
-  <script src="src/classifier.js"></script><script src="popup.js"></script>
+  <footer>Post text stays on this device.</footer>
+  <script src="src/classifier.js"></script><script src="src/corpus.js"></script><script src="popup.js"></script>
 </body>
 </html>

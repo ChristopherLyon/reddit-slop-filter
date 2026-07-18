@@ -8,9 +8,14 @@ const files = [
   "options.html",
   ...Object.values(manifest.icons || {}),
   ...Object.values(manifest.action?.default_icon || {}),
+  ...manifest.web_accessible_resources.flatMap(item => item.resources.filter(resource => !resource.includes("*"))),
   ...manifest.content_scripts.flatMap(item => [...item.js, ...item.css])
 ];
 await Promise.all(files.map(file => access(file)));
+await access("build/ml-worker.js");
+await access("build/ort-wasm-simd-threaded.jsep.mjs");
+await access("build/ort-wasm-simd-threaded.jsep.wasm");
+await access("build/models/Xenova/all-MiniLM-L6-v2/onnx/model_quantized.onnx");
 for (const htmlFile of ["popup.html", "options.html"]) {
   const html = await readFile(htmlFile, "utf8");
   const srcs = [...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(match => match[1]).filter(src => !src.startsWith("http"));

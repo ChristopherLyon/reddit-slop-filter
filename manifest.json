@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Reddit Slop Filter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Hide repetitive launch posts and cloneware from Reddit with a private, local classifier.",
   "homepage_url": "https://github.com/ChristopherLyon/reddit-slop-filter",
   "icons": {
@@ -10,8 +10,11 @@
     "48": "assets/icon-48.png",
     "128": "assets/icon-128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "activeTab"],
   "host_permissions": ["https://*.reddit.com/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
   "action": {
     "default_title": "Reddit Slop Filter",
     "default_popup": "popup.html",
@@ -27,9 +30,15 @@
   "content_scripts": [
     {
       "matches": ["https://*.reddit.com/*"],
-      "js": ["src/classifier.js", "src/content.js"],
+      "js": ["src/classifier.js", "src/corpus.js", "src/content.js"],
       "css": ["src/content.css"],
       "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["build/ml-worker.js", "build/*.mjs", "build/*.wasm", "build/models/*"],
+      "matches": ["https://*.reddit.com/*"]
     }
   ]
 }

@@ -24,7 +24,22 @@ test("allows technical posts with substantive signals", () => {
 
 test("respects a raised threshold", () => {
   const post = { title: "I launched my new side project", subreddit: "startups" };
-  assert.equal(classifier.score(post, { threshold: 0.9 }).hide, false);
+  assert.equal(classifier.score(post, { settingsVersion: 2, sensitivity: 0.2 }).hide, false);
+});
+
+test("migrates the old threshold slider as sensitivity", () => {
+  const settings = classifier.mergeSettings({ threshold: 0.9 });
+  assert.equal(settings.sensitivity, 0.9);
+  assert.ok(settings.threshold < 0.4);
+});
+
+test("recognizes the reported planning-poker launch", () => {
+  const result = classifier.score({
+    title: "Launched my ad-free, no-signup planning poker tool on Product Hunt today",
+    preview: "Nothing to install. Built on Next.js. Feedback very welcome.",
+    subreddit: "SideProject"
+  }, { settingsVersion: 2, sensitivity: 0.9 });
+  assert.equal(result.hide, true);
 });
 
 test("stable keys are deterministic and title-sensitive", () => {

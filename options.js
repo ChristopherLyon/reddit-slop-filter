@@ -9,6 +9,7 @@ const categories = [
 ];
 let settings = classifier.mergeSettings();
 let allowedPosts = {};
+let trainingCorpus = [];
 
 const categoryRoot = document.querySelector("#categories");
 for (const [key, label, help] of categories) {
@@ -21,28 +22,33 @@ for (const [key, label, help] of categories) {
 }
 
 function render() {
-  document.querySelector("#threshold").value = String(Math.round(settings.threshold * 100));
-  document.querySelector("#thresholdValue").textContent = `${Math.round(settings.threshold * 100)}%`;
+  document.querySelector("#sensitivity").value = String(Math.round(settings.sensitivity * 100));
+  document.querySelector("#sensitivityValue").textContent = `${Math.round(settings.sensitivity * 100)}%`;
   document.querySelector("#mode").value = settings.mode;
   document.querySelector("#showScore").checked = settings.showScore;
+  document.querySelector("#modelEnabled").checked = settings.modelEnabled;
   document.querySelector("#allowSubreddits").value = settings.allowSubreddits.join("\n");
   document.querySelectorAll("[data-category]").forEach(input => {
     input.value = String(Math.round((settings.categoryWeights[input.dataset.category] || 0) * 100));
     input.nextElementSibling.textContent = `${input.value}%`;
   });
   document.querySelector("#correctionCount").textContent = `${Object.keys(allowedPosts).length} post correction${Object.keys(allowedPosts).length === 1 ? "" : "s"} saved.`;
+  document.querySelector("#trainingCount").textContent = `${trainingCorpus.length} labelled training example${trainingCorpus.length === 1 ? "" : "s"} saved.`;
 }
 
-extensionApi.storage.local.get(["settings", "allowedPosts"]).then(stored => {
+extensionApi.storage.local.get(["settings", "allowedPosts", "trainingCorpus"]).then(stored => {
   settings = classifier.mergeSettings(stored.settings);
   allowedPosts = stored.allowedPosts || {};
+  trainingCorpus = stored.trainingCorpus || [];
   render();
 });
-document.querySelector("#threshold").addEventListener("input", event => { document.querySelector("#thresholdValue").textContent = `${event.target.value}%`; });
+document.querySelector("#sensitivity").addEventListener("input", event => { document.querySelector("#sensitivityValue").textContent = `${event.target.value}%`; });
 document.querySelector("#save").addEventListener("click", () => {
-  settings.threshold = Number(document.querySelector("#threshold").value) / 100;
+  settings.settingsVersion = 2;
+  settings.sensitivity = Number(document.querySelector("#sensitivity").value) / 100;
   settings.mode = document.querySelector("#mode").value;
   settings.showScore = document.querySelector("#showScore").checked;
+  settings.modelEnabled = document.querySelector("#modelEnabled").checked;
   settings.allowSubreddits = document.querySelector("#allowSubreddits").value.split(/\n|,/).map(value => value.trim()).filter(Boolean);
   document.querySelectorAll("[data-category]").forEach(input => { settings.categoryWeights[input.dataset.category] = Number(input.value) / 100; });
   extensionApi.storage.local.set({ settings }).then(() => {
@@ -54,4 +60,8 @@ document.querySelector("#save").addEventListener("click", () => {
 document.querySelector("#clearCorrections").addEventListener("click", () => {
   allowedPosts = {};
   extensionApi.storage.local.set({ allowedPosts }).then(render);
+});
+document.querySelector("#clearCorpus").addEventListener("click", () => {
+  trainingCorpus = [];
+  extensionApi.storage.local.set({ trainingCorpus }).then(render);
 });

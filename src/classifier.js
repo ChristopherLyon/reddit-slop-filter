@@ -15,7 +15,8 @@
   };
 
   const FEATURE_RULES = [
-    { category: "cloneware", weight: 0.36, pattern: /\b(todo|to-do|task manager|note[- ]taking|notes app|habit tracker|pomodoro|calculator|net worth|expense tracker|budget app|link in bio)\b/i, reason: "common cloneware category" },
+    { category: "cloneware", weight: 0.36, pattern: /\b(todo|to-do|task manager|note[- ]taking|notes app|habit tracker|pomodoro|calculator|net worth|expense tracker|budget app|link in bio|planning poker|qr code|invoice generator|resume builder)\b/i, reason: "common cloneware category" },
+    { category: "cloneware", weight: 0.18, pattern: /\b(ad[- ]free|no[- ]signup|no (account|accounts)|nothing to install|completely free|free tool)\b/i, reason: "generic free-utility pitch" },
     { category: "thinWrapper", weight: 0.34, pattern: /\b(ai[- ]powered|powered by (chatgpt|gpt|claude)|chatgpt wrapper|ai wrapper|with (gpt|claude)|using the openai api)\b/i, reason: "generic AI-wrapper language" },
     { category: "launchTemplate", weight: 0.2, pattern: /\b(i (built|made|created|launched)|just launched|introducing|meet my|my new app|side project)\b/i, reason: "templated launch framing" },
     { category: "launchTemplate", weight: 0.16, pattern: /\b(game[- ]changer|revolutioni[sz]e|supercharge|10x|change your life|all[- ]in[- ]one|ultimate)\b/i, reason: "inflated marketing claim" },
@@ -28,10 +29,13 @@
   ];
 
   const DEFAULT_SETTINGS = Object.freeze({
+    settingsVersion: 2,
     enabled: true,
-    threshold: 0.62,
+    sensitivity: 0.72,
+    threshold: 0.482,
     mode: "collapse",
     showScore: true,
+    modelEnabled: true,
     categoryWeights: {
       cloneware: 1,
       thinWrapper: 1,
@@ -56,9 +60,16 @@
   }
 
   function mergeSettings(settings = {}) {
+    const sensitivity = settings.settingsVersion === 2
+      ? Number(settings.sensitivity ?? DEFAULT_SETTINGS.sensitivity)
+      : Number(settings.threshold ?? DEFAULT_SETTINGS.sensitivity);
+    const safeSensitivity = clamp(Number.isFinite(sensitivity) ? sensitivity : DEFAULT_SETTINGS.sensitivity, 0.2, 1);
     return {
       ...DEFAULT_SETTINGS,
       ...settings,
+      settingsVersion: 2,
+      sensitivity: safeSensitivity,
+      threshold: clamp(0.95 - safeSensitivity * 0.65, 0.3, 0.82),
       categoryWeights: {
         ...DEFAULT_SETTINGS.categoryWeights,
         ...(settings.categoryWeights || {})

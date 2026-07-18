@@ -42,4 +42,12 @@ select, textarea { width: 100%; padding: 9px 10px; color: #eee; background: #0c0
 .category output { color: #aaa; font: 12px ui-monospace, monospace; text-align: right; }
 .actions { display: grid; grid-template-columns: 160px 1fr; align-items: center; gap: 14px; }
 #status { color: #82c782; font-size: 13px; }
+.current-post { display: grid; gap: 9px; padding: 13px; background: #121212; border: 1px solid #303030; border-radius: 8px; }
+.current-post[hidden] { display: none; }
+.current-post > strong { display: -webkit-box; overflow: hidden; color: #eee; font-size: 12px; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.corpus-actions, .button-row { display: flex; gap: 7px; }
+.corpus-actions .primary { flex: 1; padding: 8px; font-size: 11px; }
+.corpus-actions .secondary { font-size: 11px; }
+.current-post small { color: #82c782; line-height: 1.35; }
+.model-status { margin: -8px 0 0; color: #777; font: 10px/1.4 ui-monospace, monospace; }
 @media (max-width: 600px) { .category { grid-template-columns: 1fr 50px; }.category input { grid-column: 1 / -1; grid-row: 2; }.category output { grid-column: 2; grid-row: 1; } }

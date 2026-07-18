@@ -4,12 +4,12 @@
 <body class="options">
   <header><span class="eyebrow">REDDIT SLOP FILTER</span><h1>Tune your firewall.</h1><p>Every decision is made locally. Adjust the categories to match your tolerance.</p></header>
   <main>
-    <section><h2>Behaviour</h2><label class="field"><span>Filter threshold <output id="thresholdValue"></output></span><input id="threshold" type="range" min="35" max="90" step="1"></label><label class="field"><span>Filtered posts</span><select id="mode"><option value="collapse">Collapse with controls</option><option value="dim">Dim in place</option></select></label><label class="check"><input id="showScore" type="checkbox"> Show confidence score</label></section>
+    <section><h2>Behaviour</h2><label class="field"><span>Sensitivity <output id="sensitivityValue"></output></span><input id="sensitivity" type="range" min="20" max="100" step="1"></label><label class="field"><span>Filtered posts</span><select id="mode"><option value="collapse">Collapse with controls</option><option value="dim">Dim in place</option></select></label><label class="check"><input id="showScore" type="checkbox"> Show confidence score</label><label class="check"><input id="modelEnabled" type="checkbox"> Use local MiniLM semantic model</label></section>
     <section><h2>Category pressure</h2><div id="categories"></div></section>
     <section><h2>Always allow</h2><label class="field"><span>Subreddits, one per line</span><textarea id="allowSubreddits" rows="5" placeholder="AskHistorians&#10;MachineLearning"></textarea></label></section>
-    <section><h2>Local data</h2><p id="correctionCount">0 post corrections saved.</p><button id="clearCorrections" class="secondary" type="button">Clear corrections</button></section>
+    <section><h2>Local data</h2><p id="trainingCount">0 labelled training examples saved.</p><p id="correctionCount">0 post corrections saved.</p><div class="button-row"><button id="clearCorpus" class="secondary" type="button">Clear personal corpus</button><button id="clearCorrections" class="secondary" type="button">Clear corrections</button></div></section>
     <div class="actions"><button id="save" class="primary" type="button">Save settings</button><span id="status" role="status"></span></div>
   </main>
-  <script src="src/classifier.js"></script><script src="options.js"></script>
+  <script src="src/classifier.js"></script><script src="src/corpus.js"></script><script src="options.js"></script>
 </body>
 </html>

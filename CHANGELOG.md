@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 — 2026-07-18
+
+- Added a fully local, quantized MiniLM sentence-embedding model with pinned weights.
+- Added **Add to training corpus** and **Worthwhile** controls for the current Reddit post.
+- Added semantic nearest-example scoring from seeded and personal positive/negative examples.
+- Fixed the sensitivity slider: higher sensitivity now filters more, and v0.1 values migrate as intended.
+- Seeded the reported planning-poker/Product Hunt false negative and expanded generic utility signals.
+- Added visible model loading/readiness state and personal corpus management.
+
 ## 0.1.0 — 2026-07-18
 
 - First Safari-first open-source release.

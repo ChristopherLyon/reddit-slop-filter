@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Validate extension
-        run: npm test && npm run check
+        run: npm ci && npm test && npm run package && npm run check
       - name: Generate Safari Xcode project
         run: sh scripts/package-safari.sh "$PWD" "$RUNNER_TEMP/safari-project"
       - uses: actions/upload-artifact@v7
