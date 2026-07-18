@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1 — 2026-07-18
+
+- Mounted the inline **Slop** control in Reddit's feed-card action slot so it appears consistently beside Share.
+- Removed the inline control from individual post pages; the toolbar popup remains available there.
+- Matched Reddit's 32px small action-pill height and typography.
+
 ## 0.3.0 — 2026-07-18
 
 - Added an inline **Slop** action beside Reddit's Share control.

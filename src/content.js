@@ -172,17 +172,13 @@
   }
 
   function ensureReportButton(root, post) {
+    if (/\/comments\/[^/]+/i.test(location.pathname)) return;
     const existing = root.querySelector?.("[data-rsf-report-button='1']");
     if (existing) {
       existing.disabled = false;
       existing.textContent = personalLabelFor(post) === "slop" ? "Added" : "Slop";
       return;
     }
-    const candidates = [...root.querySelectorAll("shreddit-post-share-button, button, a, faceplate-tracker")];
-    const share = candidates.find(node => node.localName === "shreddit-post-share-button" || /(^|\s)share(\s|$)/i.test(actionLabel(node)));
-    if (!share) return;
-    const slottedShare = share.closest?.("[slot='action-row']");
-    const anchor = slottedShare || share.closest?.("shreddit-post-share-button, button, a") || share;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "rsf-report-button";
@@ -190,7 +186,6 @@
     button.textContent = personalLabelFor(post) === "slop" ? "Added" : "Slop";
     button.title = "Add this post to your local slop corpus";
     button.setAttribute("aria-label", "Add this post to your local slop corpus");
-    if (anchor.getAttribute?.("slot")) button.setAttribute("slot", anchor.getAttribute("slot"));
     button.addEventListener("click", async event => {
       event.preventDefault();
       event.stopPropagation();
@@ -205,7 +200,15 @@
         button.textContent = "Retry";
       }
     });
-    anchor.after(button);
+    if (root.localName === "shreddit-post") {
+      button.setAttribute("slot", "action-row");
+      root.append(button);
+      return;
+    }
+    const candidates = [...root.querySelectorAll("button, a, faceplate-tracker")];
+    const share = candidates.find(node => /(^|\s)share(\s|$)/i.test(actionLabel(node)));
+    const anchor = share?.closest?.("button, a") || share;
+    if (anchor) anchor.after(button);
   }
 
   function applySemanticResults(batch, message) {

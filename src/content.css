@@ -13,7 +13,7 @@
 .rsf-peek::before { content: "▾"; display: inline-block; margin-right: 5px; }
 .rsf-peek[aria-expanded="true"]::before { content: "▴"; }
 .rsf-placeholder-open { border-left-color: #8a8a86; }
-.rsf-report-button { appearance: none; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; margin-left: 8px; padding: 0 14px; color: inherit; background: rgba(255,255,255,.08); border: 0; border-radius: 999px; cursor: pointer; font: 600 14px/1 system-ui, sans-serif; white-space: nowrap; }
-.rsf-report-button::before { content: "×"; margin-right: 6px; color: #ff4500; font: 700 17px/1 ui-monospace, monospace; }
+.rsf-report-button { appearance: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; height: 32px; min-height: 32px; margin: 0; padding: 0 12px; color: inherit; background: rgba(255,255,255,.08); border: 0; border-radius: 999px; cursor: pointer; font: 600 12px/1 system-ui, sans-serif; white-space: nowrap; }
+.rsf-report-button::before { content: "×"; margin-right: 5px; color: #ff4500; font: 700 15px/1 ui-monospace, monospace; }
 .rsf-report-button:hover { background: rgba(255,255,255,.14); }
 .rsf-report-button:disabled { cursor: default; opacity: .72; }
